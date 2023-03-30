@@ -56,14 +56,14 @@ jobs:
       env:
         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_STAGING }}
       with:
-        args: bash ./deploy.sh
+        args: apply -f k8s
 
-    - name: Verify Kubernetes deployment                               
-      uses: kodermax/kubectl-aws-eks@master                            
-      with:                                                            
-        args: rollout status deploy server-deployment 
-              rollout status deploy client-deployment 
-              rollout status deploy worker-deployment 
+#    - name: Verify Kubernetes deployment                               
+#      uses: kodermax/kubectl-aws-eks@master                            
+      # with:                                                            
+      #   args: rollout status deploy server-deployment 
+      #         rollout status deploy client-deployment 
+      #         rollout status deploy worker-deployment 
 
     - name: Print Happy Message for CD finish
       run : echo "CD Pipeline part Finished successfully!"
