@@ -1,0 +1,72 @@
+name: deploy-docker-multi-container
+env:
+  AWS_REGION_NAME           : "eu-central-1"
+  
+on:
+ push:
+  branches:
+   - main
+
+jobs:
+ CI:
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Git clone our repo
+      uses: actions/checkout@v2
+
+    - name: Create docker container for test
+      run: docker build -t edmitrenko/react-test -f ./client/Dockerfile.dev ./client
+
+    - name: Run tests
+      run: docker run -e CI=true edmitrenko/react-test npm test
+
+    - name: Login to dockerhub
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+    - run: docker build -t edmitrenko/multi-client:latest -t edmitrenko/multi-client:${{ github.sha }} -f ./client/Dockerfile ./client
+    - run: docker build -t edmitrenko/multi-server:latest -t edmitrenko/multi-server:${{ github.sha }} -f ./server/Dockerfile ./server
+    - run: docker build -t edmitrenko/multi-worker:latest -t edmitrenko/multi-worker:${{ github.sha }} -f ./worker/Dockerfile ./worker
+
+    - run: docker push edmitrenko/multi-client:latest
+    - run: docker push edmitrenko/multi-server:latest
+    - run: docker push edmitrenko/multi-worker:latest
+
+    - run: docker push edmitrenko/multi-client:${{ github.sha }}
+    - run: docker push edmitrenko/multi-server:${{ github.sha }}
+    - run: docker push edmitrenko/multi-worker:${{ github.sha }}
+
+    - name: Print Happy Message for CI finish
+      run : echo "CI Pipeline part Finished successfully!"
+
+ CD:
+    runs-on: ubuntu-latest
+    needs: [CI]
+
+    steps:
+    - name: Configure my AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id    :  ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key:  ${{ secrets.AWS_SECRET_KEY }}
+        aws-region           :  ${{ env.AWS_REGION_NAME }}
+
+    - name: deploy to EKS cluster
+        uses: kodermax/kubectl-aws-eks@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_STAGING }}
+        with:
+          args: apply -f k8s
+          args: set image deployment/server-deployment server=edmitrenko/multi-server:${{ github.sha }}
+          args: set image deployments/client-deployment client=edmitrenko/multi-client:${{ github.sha }}
+          args: set image deployments/worker-deployment worker=edmitrenko/multi-worker:${{ github.sha }}
+
+    - name: Verify Kubernetes deployment                               
+        uses: kodermax/kubectl-aws-eks@master                            
+        with:                                                            
+          args: rollout status deploy server-deployment 
+          args: rollout status deploy client-deployment 
+          args: rollout status deploy worker-deployment 
+
+    - name: Print Happy Message for CD finish
+      run : echo "CD Pipeline part Finished successfully!"
