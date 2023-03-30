@@ -52,21 +52,21 @@ jobs:
         aws-region           :  ${{ env.AWS_REGION_NAME }}
 
     - name: deploy to EKS cluster
-        uses: kodermax/kubectl-aws-eks@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_STAGING }}
-        with:
-          args: apply -f k8s
-          args: set image deployment/server-deployment server=edmitrenko/multi-server:${{ github.sha }}
-          args: set image deployments/client-deployment client=edmitrenko/multi-client:${{ github.sha }}
-          args: set image deployments/worker-deployment worker=edmitrenko/multi-worker:${{ github.sha }}
+      uses: kodermax/kubectl-aws-eks@master
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_STAGING }}
+      with:
+        args: apply -f k8s
+        args: set image deployment/server-deployment server=edmitrenko/multi-server:${{ github.sha }}
+        args: set image deployments/client-deployment client=edmitrenko/multi-client:${{ github.sha }}
+        args: set image deployments/worker-deployment worker=edmitrenko/multi-worker:${{ github.sha }}
 
     - name: Verify Kubernetes deployment                               
-        uses: kodermax/kubectl-aws-eks@master                            
-        with:                                                            
-          args: rollout status deploy server-deployment 
-          args: rollout status deploy client-deployment 
-          args: rollout status deploy worker-deployment 
+      uses: kodermax/kubectl-aws-eks@master                            
+      with:                                                            
+        args: rollout status deploy server-deployment 
+        args: rollout status deploy client-deployment 
+        args: rollout status deploy worker-deployment 
 
     - name: Print Happy Message for CD finish
       run : echo "CD Pipeline part Finished successfully!"
