@@ -12,8 +12,8 @@ jobs:
   runs-on: ubuntu-latest
 
   steps:
-    - name: Git clone our repo
-      uses: actions/checkout@v2
+    # - name: Git clone our repo
+    #   uses: actions/checkout@v2
 
     # - name: Create docker container for test
     #   run: docker build -t edmitrenko/react-test -f ./client/Dockerfile.dev ./client
@@ -44,6 +44,12 @@ jobs:
     needs: [CI]
 
     steps:
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.26.3'
+      id: install  
+    
     - name: Configure my AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -51,19 +57,26 @@ jobs:
         aws-secret-access-key:  ${{ secrets.AWS_SECRET_KEY }}
         aws-region           :  ${{ env.AWS_REGION_NAME }}
 
-    - name: deploy to EKS cluster
-      uses: kodermax/kubectl-aws-eks@master
-      env:
-        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_STAGING }}
-      with:
-        args: set image deployment/server-deployment server=edmitrenko/multi-server:${{ github.sha }}
+    - name: Deploy to EKS
+      run: |
+        kubectl apply -f k8s
+#        kubectl set image deployment/server-deployment server=edmitrenko/multi-server
+        kubectl set image deployments/client-deployment client=edmitrenko/multi-client
+        kubectl set image deployments/worker-deployment worker=edmitrenko/multi-worker
 
-#    - name: Verify Kubernetes deployment                               
-#      uses: kodermax/kubectl-aws-eks@master                            
-      # with:                                                            
-      #   args: rollout status deploy server-deployment 
-      #         rollout status deploy client-deployment 
-      #         rollout status deploy worker-deployment 
+    # - name: deploy to EKS cluster
+    #   uses: kodermax/kubectl-aws-eks@master
+    #   env:
+    #     KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_STAGING }}
+    #   with:
+    #     args: apply -f k8s
+
+  #  - name: Verify Kubernetes deployment                               
+  #    uses: kodermax/kubectl-aws-eks@master                            
+  #     with:                                                            
+  #       args: rollout status deploy server-deployment 
+  #             rollout status deploy client-deployment 
+  #             rollout status deploy worker-deployment 
 
     - name: Print Happy Message for CD finish
       run : echo "CD Pipeline part Finished successfully!"
