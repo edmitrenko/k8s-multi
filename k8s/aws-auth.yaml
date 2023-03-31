@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
 data:
   mapUsers: |
-    - userarn: arn:aws:iam::860300666219:user/github-actions
+    - userarn: arn:aws:iam::860300666219:user/terraform
       username: github-actions
       groups: 
         - system:masters
