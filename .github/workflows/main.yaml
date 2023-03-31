@@ -60,7 +60,7 @@ jobs:
     - name: Deploy to EKS
       run: |
         kubectl apply -f k8s
-        kubectl rollout restart deployments/client-deployment client=edmitrenko/multi-client
+        kubectl rollout restart deployments/client-deployment
 
     - name: Verify Kubernetes deployment
       run: |
