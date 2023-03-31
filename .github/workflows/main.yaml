@@ -58,7 +58,9 @@ jobs:
         aws-region           :  ${{ env.AWS_REGION_NAME }}
     
     - name: Get kubectl credentials
-      run: aws eks update-kubeconfig --region ${{ env.AWS_REGION_NAME }} --name cluster
+      run: |
+        aws sts get-caller-identity
+        aws eks --region region update-kubeconfig --name cluster
       
     - name: Deploy to EKS
       run: |
