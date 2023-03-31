@@ -59,7 +59,7 @@ jobs:
   
     - name: Deploy to EKS
       run: |
-        kubectl apply -f k8s
+        kubectl cluster-info
 #        kubectl set image deployments/server-deployment server=edmitrenko/multi-server
 #        kubectl set image deployments/client-deployment client=edmitrenko/multi-client
 #        kubectl set image deployments/worker-deployment worker=edmitrenko/multi-worker
