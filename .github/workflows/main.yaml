@@ -61,13 +61,10 @@ jobs:
       run: |
         aws sts get-caller-identity
         aws eks --region ${{ env.AWS_REGION_NAME }} update-kubeconfig --name cluster
-     
-    - name: Show credentials
-      run : cat $HOME/.kube/config | base64 
- 
+        
     - name: Deploy to EKS
       run: |
-        kubectl cluster-info
+        kubectl apply -f k8s
 #        kubectl set image deployments/server-deployment server=edmitrenko/multi-server
 #        kubectl set image deployments/client-deployment client=edmitrenko/multi-client
 #        kubectl set image deployments/worker-deployment worker=edmitrenko/multi-worker
