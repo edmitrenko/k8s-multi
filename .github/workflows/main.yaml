@@ -60,9 +60,9 @@ jobs:
     - name: Deploy to EKS
       run: |
         kubectl apply -f k8s
-#        kubectl set image deployment/server-deployment server=edmitrenko/multi-server
-        kubectl set image deployments/client-deployment client=edmitrenko/multi-client
-        kubectl set image deployments/worker-deployment worker=edmitrenko/multi-worker
+#        kubectl set image deployments/server-deployment server=edmitrenko/multi-server
+#        kubectl set image deployments/client-deployment client=edmitrenko/multi-client
+#        kubectl set image deployments/worker-deployment worker=edmitrenko/multi-worker
 
     # - name: deploy to EKS cluster
     #   uses: kodermax/kubectl-aws-eks@master
