@@ -25,11 +25,11 @@ jobs:
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
     - run: docker build -t edmitrenko/multi-client:latest -f ./client/Dockerfile ./client
-    - run: docker build -t edmitrenko/multi-server:latest -f ./server/Dockerfile ./server
+#    - run: docker build -t edmitrenko/multi-server:latest -f ./server/Dockerfile ./server
     - run: docker build -t edmitrenko/multi-worker:latest -f ./worker/Dockerfile ./worker
    
     - run: docker push edmitrenko/multi-client:latest
-    - run: docker push edmitrenko/multi-server:latest
+#    - run: docker push edmitrenko/multi-server:latest
     - run: docker push edmitrenko/multi-worker:latest
       
     - name: Print Happy Message for CI finish
